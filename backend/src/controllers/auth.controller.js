@@ -5,7 +5,6 @@ import bcrypt from "bcryptjs"
 import cloudinary from "../lib/cloudinary.js";
 const router = express.Router();
 
-
 export const signup = async(req,res)=>{
     try{
         const {name,email,password} = req.body;
@@ -54,7 +53,7 @@ export const login = async(req,res)=>{
 
 export const logout = (req,res)=>{
     try{
-        res.cookie("jwt", "",{maAge: 0});
+        res.cookie("jwt", "",{maxAge: 0});
         return res.status(200).json({message: "User Logged out Successfully"});
 
     }catch(err){
@@ -62,18 +61,42 @@ export const logout = (req,res)=>{
     }
 }
 
-
-export const updateprofile = (req,res)=>{
+export const updateprofile = async(req,res)=>{
     try {
-        const{profilePic} = req.body;
-        if(!profilePic) return res.status(400).json({message: "NO Profile pic"});
-        const uploadPic = cloudinary.uploader.upload(profilePic);
-        const updatedUser = User.findByIdAndUpdate(req.user._id, {profilePic:uploadPic.secure_url}, {new:true});
-        return res.status(200).json({message: "Updated Profile Pic"});
+        console.log("=== UPDATE PROFILE DEBUG ===");
+        console.log("Request body:", req.body);
+        console.log("ProfilePic received:", !!req.body.profilePic);
+        console.log("User from middleware:", req.user ? req.user._id : "No user");
+        
+        const {profilePic} = req.body;
+        
+        if(!profilePic) {
+            return res.status(400).json({message: "No Profile pic provided"});
+        }
+        
+        if(!req.user) {
+            return res.status(401).json({message: "User not authenticated"});
+        }
+        
+        const uploadPic = await cloudinary.uploader.upload(profilePic);
+        
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id, 
+            {profilePic: uploadPic.secure_url}, 
+            {new: true}
+        ).select("-password");
+        
+        return res.status(200).json({
+            message: "Profile picture updated successfully", 
+            user: updatedUser
+        });
     } catch (error) {
-        return res.status(400).json({message: err.message});
+        console.error("Error updating profile:", error);
+        return res.status(500).json({message: error.message});
     }
 }
+
+
 
 export const checkAuth = (req, res) => {
     try {

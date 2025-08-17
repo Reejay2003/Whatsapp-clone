@@ -17,7 +17,10 @@ const userSchema = new mongoose.Schema({
     name:{
         type:String,
         default:"", 
-    }
+    },profilePic: {
+        type: String,
+        default: "",
+      },
 },{timestamps:true} );
 
 export default mongoose.model("User",userSchema); 
