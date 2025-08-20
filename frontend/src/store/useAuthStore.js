@@ -8,6 +8,7 @@ export const useAuthStore = create((set) => ({
   isLoggingIn: false,
   isUpdatingProfile: false,
   isCheckingAuth: true,
+  onlineUsers: [],
  
   checkAuth: async () => {
     try {
@@ -72,7 +73,7 @@ export const useAuthStore = create((set) => ({
       set((state) => ({
         authUser: {
           ...state.authUser,
-          user: res.data.user // Make sure this matches your backend response structure
+          user: res.data.user 
         }
       }));
       

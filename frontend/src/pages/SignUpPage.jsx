@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showCPassword, setShowCPassword] = useState(false);
   const [data, setData] = useState({
     name: "",
     email: "",
@@ -37,6 +38,10 @@ const SignUpPage = () => {
       toast.error("Password must be at least 6 characters long");
       return false;
     }
+    if(data.cnfpassword!=data.password){
+      toast.error("Password and Confirm Password should be same");
+      return false
+    }
     return true;
   };
 
@@ -52,8 +57,8 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#ECE5DD] px-4 py-4 overflow-hidden">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-4 sm:p-6 max-h-[95vh] flex flex-col">
+    <div className="flex items-center mt-[-17px] justify-center min-h-screen bg-[#ECE5DD] px-4 py-4 overflow-hidden">
+      <div className="w-full max-w-md bg-white mt-[-50px] shadow-lg rounded-2xl p-4 sm:p-6 max-h-[95vh] flex flex-col">
         {/* Logo / Heading */}
         <div className="text-center mb-4">
           <div className="flex items-center justify-center mb-2">
@@ -123,6 +128,31 @@ const SignUpPage = () => {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"
               >
                 {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+          </div>
+
+
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-xs sm:text-sm font-medium text-gray-600">
+              Confirm Password
+            </label>
+            <div className="relative">
+              <input
+                type={showCPassword ? "text" : "password"}
+                name="cnfpassword"
+                value={data.cnfpassword}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                className="w-full mt-1 text-gray-600 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#25D366] focus:outline-none text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowCPassword(!showCPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"
+              >
+                {showCPassword ? "Hide" : "Show"}
               </button>
             </div>
           </div>
