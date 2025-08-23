@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 import {io} from "socket.io-client";
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001/api" : "/";
+const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5002/" : "/";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -101,21 +101,35 @@ export const useAuthStore = create((set, get) => ({
   connectSocket: () => {
     const { authUser } = get();
     if (!authUser || get().socket?.connected) return;
-
-    const socket = io(BASE_URL, {
+  
+    console.log("Connecting socket for user:", authUser.user._id);
+  
+    // Use explicit URL without /api
+    const socket = io("http://localhost:5002", {
       query: {
         userId: authUser.user._id,
       },
     });
-    socket.connect();
-
+  
     set({ socket: socket });
-
+  
+    // Add debugging
+    socket.on("connect", () => {
+      console.log("✅ Connected to server:", socket.id);
+      console.log("User ID sent to server:", authUser.user._id);
+    });
+  
+    socket.on("connect_error", (error) => {
+      console.log("❌ Connection error:", error);
+    });
+  
     socket.on("getOnlineUsers", (userIds) => {
+      console.log("Online users updated:", userIds);
       set({ onlineUsers: userIds });
     });
-  },
-  disconnectSocket: () => {
-    if (get().socket?.connected) get().socket.disconnect();
+  
+    socket.on("newMessage", (message) => {
+      console.log("🔔 Received message at auth store level:", message);
+    });
   },
 }));
