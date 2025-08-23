@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useChatStore } from '../store/useChatStore';
-import Sidebar from '../components/Sidebar';
+import Sidebar from '../components/SideBar';
 import MessageContainer from '../components/MessageContainer';
 
 const HomePage = () => {
@@ -11,16 +11,18 @@ const HomePage = () => {
   }, [getUsers]);
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-[#ECE5DD]">
-      {/* On mobile: show sidebar when no user is selected, hide when user is selected */}
-      {/* On desktop: always show sidebar */}
-      <div className={`${selectedUser ? 'hidden md:flex' : 'flex'} w-full md:w-1/3 lg:w-1/4 xl:w-1/3`}>
+    <div className="h-full flex overflow-hidden">
+      {/* Sidebar - Hidden on mobile when chat is selected */}
+      <div className={`w-full md:w-80 lg:w-96 flex-shrink-0 border-r border-gray-200 ${
+        selectedUser ? 'hidden md:block' : 'block'
+      }`}>
         <Sidebar />
       </div>
       
-      {/* On mobile: show message container when user is selected, hide when no user is selected */}
-      {/* On desktop: always show message container */}
-      <div className={`${selectedUser ? 'flex' : 'hidden md:flex'} flex-1`}>
+      {/* Chat Container - Hidden on mobile when no chat is selected */}
+      <div className={`flex-1 min-w-0 ${
+        selectedUser ? 'block' : 'hidden md:block'
+      }`}>
         <MessageContainer />
       </div>
     </div>

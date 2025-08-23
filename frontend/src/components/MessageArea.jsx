@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import MessageSkeleton from "../components/skeleton/MessageSkeleton";
 
 const MessagesArea = ({ messages, selectedUser, authUser, isMessagesLoading }) => {
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   if (isMessagesLoading) {
     return (
-      <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 bg-[#f8f9fa]">
+      <div className="h-full overflow-y-auto p-3 md:p-4 space-y-3">
         <MessageSkeleton />
       </div>
     );
@@ -12,27 +22,25 @@ const MessagesArea = ({ messages, selectedUser, authUser, isMessagesLoading }) =
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 bg-[#f8f9fa]">
-        <div className="flex items-center justify-center h-full">
-          <div className="text-center px-4">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-                alt="WhatsApp"
-                className="w-6 h-6 md:w-8 md:h-8"
-              />
-            </div>
-            <p className="text-gray-500 text-xs md:text-sm">
-              Start a conversation with {selectedUser.name}
-            </p>
+      <div className="h-full overflow-y-auto p-3 md:p-4 flex items-center justify-center">
+        <div className="text-center px-4">
+          <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+              alt="WhatsApp"
+              className="w-6 h-6 md:w-8 md:h-8"
+            />
           </div>
+          <p className="text-gray-500 text-xs md:text-sm">
+            Start a conversation with {selectedUser.name}
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 bg-[#f8f9fa]">
+    <div className="h-full overflow-y-auto p-3 md:p-4 space-y-3">
       {messages.map((message) => {
         const isMyMessage = message.senderId === authUser?.user?._id;
         const hasImage = !!message.image;
@@ -73,6 +81,7 @@ const MessagesArea = ({ messages, selectedUser, authUser, isMessagesLoading }) =
           </div>
         );
       })}
+      <div ref={messagesEndRef} />
     </div>
   );
 };

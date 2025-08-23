@@ -7,31 +7,42 @@ import MessageInput from './MessageInput';
 
 const MessageContainer = () => {
   const { authUser } = useAuthStore();
-  const { selectedUser, messages, getMessages, isMessagesLoading } = useChatStore();
+  const { subscribeToMessages, unsubscribeFromMessages, selectedUser, messages, getMessages, isMessagesLoading } = useChatStore();
 
   useEffect(() => {
     if (selectedUser?._id) {
       getMessages(selectedUser._id);
+      subscribeToMessages();
+      return() => unsubscribeFromMessages();
     }
-  }, [selectedUser, getMessages]);
-
-  // Remove the handleSendMessage function since MessageInput handles it internally now
+  }, [selectedUser, getMessages, unsubscribeFromMessages, subscribeToMessages]);
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-[#f8f9fa] w-full">
+    <div className="h-full flex flex-col bg-[#f8f9fa]">
       {selectedUser ? (
         <>
-          <ChatHeader selectedUser={selectedUser} />
-          <MessagesArea 
-            messages={messages}
-            selectedUser={selectedUser}
-            authUser={authUser}
-            isMessagesLoading={isMessagesLoading}
-          />
-          <MessageInput />
+          {/* Fixed Chat Header */}
+          <div className="flex-shrink-0">
+            <ChatHeader selectedUser={selectedUser} />
+          </div>
+          
+          {/* Scrollable Messages Area */}
+          <div className="flex-1 min-h-0">
+            <MessagesArea 
+              messages={messages}
+              selectedUser={selectedUser}
+              authUser={authUser}
+              isMessagesLoading={isMessagesLoading}
+            />
+          </div>
+          
+          {/* Fixed Message Input */}
+          <div className="flex-shrink-0">
+            <MessageInput />
+          </div>
         </>
       ) : (
-        <div className="flex-1 flex items-center justify-center p-4 bg-[#f8f9fa]">
+        <div className="flex-1 flex items-center justify-center p-4">
           <div className="text-center">
             <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
               <img

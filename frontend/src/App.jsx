@@ -9,7 +9,6 @@ import Profile from "./pages/Profile";
 import { useAuthStore } from "./store/useAuthStore";
 import { Toaster} from "react-hot-toast";
 
-
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 
@@ -31,28 +30,30 @@ const App = () => {
   }
 
   return (
-    <div>
+    <div className="h-screen flex flex-col overflow-hidden">
       <Navbar />
-      <Routes>
-        {/* Home page is protected */}
-        <Route
-          path="/"
-          element={authUser ? <HomePage /> : <Navigate to="/login" />}
-        />
+      <div className="flex-1 min-h-0">
+        <Routes>
+          {/* Home page is protected */}
+          <Route
+            path="/"
+            element={authUser ? <HomePage /> : <Navigate to="/login" />}
+          />
 
-        {/* Public routes */}
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/login" element={<LoginPage />} />
+          {/* Public routes */}
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* Example extra route */}
-        <Route path="/settings" element={<Settings />} />
+          {/* Example extra route */}
+          <Route path="/settings" element={<Settings />} />
 
-        {/* Profile page is protected */}
-        <Route
-          path="/profile"
-          element={authUser ? <Profile /> : <Navigate to="/login" />}
-        />
-      </Routes>
+          {/* Profile page is protected */}
+          <Route
+            path="/profile"
+            element={authUser ? <Profile /> : <Navigate to="/login" />}
+          />
+        </Routes>
+      </div>
       <Toaster/>
     </div>
   );

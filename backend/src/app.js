@@ -6,10 +6,11 @@ import cors from "cors";
 import { connectDB } from "./lib/db.js";
 import cookieParser from "cookie-parser";
 import express from 'express';
-
-const app = express();
+import {app, server, io} from './lib/socket.js'
+import path from "path";
 
 const port = process.env.PORT;
+const __dirname=path.resolve()
 
 // Middleware setup (fixed order and removed duplicate)
 app.use(cors({
@@ -24,7 +25,15 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
 
-app.listen(port, () => {
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+  });
+}
+
+server.listen(port, () => {
   console.log(`Server running on port ${port}`);
   connectDB();
 });
