@@ -66,27 +66,11 @@ export const sendMessage = async(req, res) => {
 
         await newMessage.save();
 
-        // Emit to receiver
         const receiverSocketId = getReceiverSocketId(userToChatId);
         if(receiverSocketId){
-            console.log("Emitting message to receiver:", userToChatId);
             io.to(receiverSocketId).emit("newMessage", newMessage);
         }
-
-        // IMPORTANT: Also emit to sender so they see their own message in real-time
-        const senderSocketId = getReceiverSocketId(senderId.toString());
-        if(senderSocketId){
-            console.log("Emitting message to sender:", senderId);
-            io.to(senderSocketId).emit("newMessage", newMessage);
-        }
-
-        console.log("Message saved and emitted:", {
-            messageId: newMessage._id,
-            from: senderId,
-            to: userToChatId,
-            receiverOnline: !!receiverSocketId,
-            senderOnline: !!senderSocketId
-        });
+       
 
         res.status(201).json(newMessage);
     } catch (err) {
