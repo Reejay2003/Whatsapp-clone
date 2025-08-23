@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useChatStore } from '../store/useChatStore';
-import Sidebar from '../components/SideBar';
+import Sidebar from '../components/Sidebar';
 import MessageContainer from '../components/MessageContainer';
 
 const HomePage = () => {
