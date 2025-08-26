@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import { useThemeStore } from "../store/useThemeStore";
 import { FaCamera, FaUser, FaEnvelope, FaSpinner } from "react-icons/fa";
 import toast from "react-hot-toast";
 
 const Profile = () => {
   const { authUser, updateProfile, isUpdatingProfile } = useAuthStore();
+  const { isDark } = useThemeStore();
   const [selectedImage, setSelectedImage] = useState(null);
   const [isHovering, setIsHovering] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
@@ -74,15 +76,15 @@ const Profile = () => {
   const currentImage = selectedImage || authUser?.user?.profilePic;
 
   return (
-    <div className="min-h-screen bg-[#ECE5DD] px-4 py-8">
+    <div className={`${isDark ? "dark" : ""} min-h-screen bg-primary1 dark:bg-primary-dark px-4 py-8`}>
       <div className="max-w-md mx-auto">
-        <div className="bg-white shadow-2xl rounded-3xl p-6 sm:p-8 transform transition-all duration-300 hover:shadow-3xl">
+        <div className="bg-header-bg dark:bg-header-bg-dark shadow-2xl rounded-3xl p-6 sm:p-8 transform transition-all duration-300 hover:shadow-3xl">
           {/* Header with animation */}
           <div className="text-center mb-8 animate-fade-in">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary dark:text-text-primary-dark mb-2">
               Profile
             </h1>
-            <p className="text-gray-500 text-sm sm:text-base">
+            <p className="text-text-secondary dark:text-text-secondary-dark text-sm sm:text-base">
               Your profile information
             </p>
           </div>
@@ -94,7 +96,7 @@ const Profile = () => {
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
             >
-              <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-[#25D366] to-[#20bd5a] flex items-center justify-center border-4 border-white shadow-xl overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
+              <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-green-accent to-[#20bd5a] flex items-center justify-center border-4 border-header-bg dark:border-header-bg-dark shadow-xl overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
                 {currentImage ? (
                   <img
                     src={currentImage}
@@ -119,7 +121,7 @@ const Profile = () => {
                 disabled={isUpdatingProfile || imageLoading}
                 className={`absolute bottom-2 right-2 p-3 sm:p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 active:scale-95 ${
                   isUpdatingProfile || imageLoading
-                    ? 'bg-gray-400 cursor-not-allowed'
+                    ? 'bg-text-muted dark:bg-text-muted-dark cursor-not-allowed'
                     : 'bg-[#18a14a] hover:bg-[#20bd5a] hover:shadow-xl cursor-pointer'
                 } ${isHovering ? 'animate-bounce' : ''}`}
               >
@@ -141,7 +143,7 @@ const Profile = () => {
               />
             </div>
             
-            <p className="text-gray-500 text-sm mt-4 text-center transition-all duration-300 hover:text-gray-700">
+            <p className="text-text-secondary dark:text-text-secondary-dark text-sm mt-4 text-center transition-all duration-300 hover:text-text-primary dark:hover:text-text-primary-dark">
               Click the camera icon to update your photo
             </p>
           </div>
@@ -150,8 +152,8 @@ const Profile = () => {
           <div className="space-y-6 mb-8">
             {/* Full Name */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-700 mb-3 transition-colors duration-200 group-hover:text-[#25D366]">
-                <FaUser className="inline mr-2 text-[#25D366]" />
+              <label className="block text-sm font-semibold text-text-primary dark:text-text-primary-dark mb-3 transition-colors duration-200 group-hover:text-green-accent">
+                <FaUser className="inline mr-2 text-green-accent" />
                 Full Name
               </label>
               <div className="relative">
@@ -159,15 +161,15 @@ const Profile = () => {
                   type="text"
                   value={authUser?.user?.name || "Loading..."}
                   disabled
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-700 cursor-not-allowed text-sm sm:text-base transition-all duration-200 hover:border-gray-300 focus:border-[#25D366] focus:outline-none"
+                  className="w-full px-4 py-3 border-2 border-input-border dark:border-input-border-dark rounded-xl bg-hover-bg dark:bg-hover-bg-dark text-text-primary dark:text-text-primary-dark cursor-not-allowed text-sm sm:text-base transition-all duration-200 hover:border-input-border-dark dark:hover:border-border focus:border-green-accent focus:outline-none"
                 />
               </div>
             </div>
 
             {/* Email Address */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-700 mb-3 transition-colors duration-200 group-hover:text-[#25D366]">
-                <FaEnvelope className="inline mr-2 text-[#25D366]" />
+              <label className="block text-sm font-semibold text-text-primary dark:text-text-primary-dark mb-3 transition-colors duration-200 group-hover:text-green-accent">
+                <FaEnvelope className="inline mr-2 text-green-accent" />
                 Email Address
               </label>
               <div className="relative">
@@ -175,32 +177,32 @@ const Profile = () => {
                   type="email"
                   value={authUser?.user?.email || "Loading..."}
                   disabled
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 text-gray-700 cursor-not-allowed text-sm sm:text-base transition-all duration-200 hover:border-gray-300 focus:border-[#25D366] focus:outline-none"
+                  className="w-full px-4 py-3 border-2 border-input-border dark:border-input-border-dark rounded-xl bg-hover-bg dark:bg-hover-bg-dark text-text-primary dark:text-text-primary-dark cursor-not-allowed text-sm sm:text-base transition-all duration-200 hover:border-input-border-dark dark:hover:border-border focus:border-green-accent focus:outline-none"
                 />
               </div>
             </div>
           </div>
 
           {/* Enhanced Account Information */}
-          <div className="border-t-2 border-gray-100 pt-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
+          <div className="border-t-2 border-border dark:border-border-dark pt-6">
+            <h3 className="text-xl font-bold text-text-primary dark:text-text-primary-dark mb-6 flex items-center">
               Account Information
             </h3>
             
             <div className="space-y-4">
               {/* Member Since */}
-              <div className="flex justify-between items-center py-3 px-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200">
-                <span className="text-gray-600 font-medium">Member Since</span>
-                <span className="text-gray-800 font-semibold">
+              <div className="flex justify-between items-center py-3 px-4 bg-hover-bg dark:bg-hover-bg-dark rounded-xl hover:bg-message-received dark:hover:bg-secondary-dark transition-colors duration-200">
+                <span className="text-text-secondary dark:text-text-secondary-dark font-medium">Member Since</span>
+                <span className="text-text-primary dark:text-text-primary-dark font-semibold">
                   {formatMemberSince(authUser?.user?.createdAt)}
                 </span>
               </div>
               
               {/* Account Status */}
-              <div className="flex justify-between items-center py-3 px-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors duration-200">
-                <span className="text-gray-600 font-medium">Account Status</span>
-                <span className="text-green-600 font-bold flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+              <div className="flex justify-between items-center py-3 px-4 bg-green-50 dark:bg-secondary-dark rounded-xl hover:bg-green-100 dark:hover:bg-hover-bg-dark transition-colors duration-200">
+                <span className="text-text-secondary dark:text-text-secondary-dark font-medium">Account Status</span>
+                <span className="text-success font-bold flex items-center">
+                  <div className="w-2 h-2 bg-success rounded-full mr-2 animate-pulse"></div>
                   Active
                 </span>
               </div>

@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import MessageSkeleton from "../components/skeleton/MessageSkeleton";
+import { useThemeStore } from '../store/useThemeStore';
 
 const MessagesArea = ({ messages, selectedUser, authUser, isMessagesLoading }) => {
   const messagesEndRef = useRef(null);
+  const { isDark } = useThemeStore();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -14,7 +16,7 @@ const MessagesArea = ({ messages, selectedUser, authUser, isMessagesLoading }) =
 
   if (isMessagesLoading) {
     return (
-      <div className="h-full overflow-y-auto p-3 md:p-4 space-y-3">
+      <div className={`${isDark ? "dark" : ""} h-full overflow-y-auto p-3 md:p-4 space-y-3 bg-message-bg dark:bg-message-bg-dark`}>
         <MessageSkeleton />
       </div>
     );
@@ -22,16 +24,16 @@ const MessagesArea = ({ messages, selectedUser, authUser, isMessagesLoading }) =
 
   if (messages.length === 0) {
     return (
-      <div className="h-full overflow-y-auto p-3 md:p-4 flex items-center justify-center">
+      <div className={`${isDark ? "dark" : ""} h-full overflow-y-auto p-3 md:p-4 flex items-center justify-center bg-message-bg dark:bg-message-bg-dark`}>
         <div className="text-center px-4">
-          <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="w-12 h-12 md:w-16 md:h-16 bg-hover-bg dark:bg-hover-bg-dark rounded-full flex items-center justify-center mx-auto mb-3">
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
               alt="WhatsApp"
               className="w-6 h-6 md:w-8 md:h-8"
             />
           </div>
-          <p className="text-gray-500 text-xs md:text-sm">
+          <p className="text-text-secondary dark:text-text-secondary-dark text-xs md:text-sm">
             Start a conversation with {selectedUser.name}
           </p>
         </div>
@@ -40,7 +42,7 @@ const MessagesArea = ({ messages, selectedUser, authUser, isMessagesLoading }) =
   }
 
   return (
-    <div className="h-full overflow-y-auto p-3 md:p-4 space-y-3">
+    <div className={`${isDark ? "dark" : ""} h-full overflow-y-auto p-3 md:p-4 space-y-3 bg-message-bg dark:bg-message-bg-dark`}>
       {messages.map((message) => {
         const isMyMessage = message.senderId === authUser?.user?._id;
         const hasImage = !!message.image;
@@ -53,11 +55,19 @@ const MessagesArea = ({ messages, selectedUser, authUser, isMessagesLoading }) =
           >
             <div className={`chat-bubble max-w-xs sm:max-w-sm lg:max-w-md xl:max-w-lg shadow-sm ${
               isMyMessage
-                ? 'bg-green-500 text-white'
-                : 'bg-base-200 text-base-content'
+                ? 'bg-green-accent text-white'
+                : 'bg-message-received dark:bg-message-received-dark text-text-primary dark:text-text-primary-dark'
             }`} style={{
-              backgroundColor: isMyMessage ? '#25D366' : '#ffffff',
-              color: isMyMessage ? '#ffffff' : '#1f2937',
+              backgroundColor: isMyMessage 
+                ? '#25D366' 
+                : isDark 
+                  ? 'var(--color-message-received-dark)' 
+                  : 'var(--color-message-received)',
+              color: isMyMessage 
+                ? '#ffffff' 
+                : isDark 
+                  ? 'var(--color-text-primary-dark)' 
+                  : 'var(--color-text-primary)',
               padding: hasImage && !hasText ? '4px' : '12px'
             }}>
               {/* Image */}

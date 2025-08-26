@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { useChatStore } from '../store/useChatStore';
+import { useThemeStore } from '../store/useThemeStore';
 
 const MessageInput = ({ disabled = false }) => {
   const { sendMessage, selectedUser } = useChatStore();
+  const { isDark } = useThemeStore();
   const [messageText, setMessageText] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -100,27 +102,27 @@ const MessageInput = ({ disabled = false }) => {
   };
 
   return (
-    <div className="bg-white border-t border-gray-200 shadow-sm">
+    <div className={`${isDark ? "dark" : ""} bg-header-bg dark:bg-header-bg-dark border-t border-border dark:border-border-dark shadow-sm`}>
       {/* Image Preview */}
       {imagePreview && (
-        <div className="px-2 sm:px-3 md:px-4 py-2 sm:py-3 border-b border-gray-100">
+        <div className="px-2 sm:px-3 md:px-4 py-2 sm:py-3 border-b border-border dark:border-border-dark">
           <div className="flex items-start space-x-2 sm:space-x-3">
             <div className="relative flex-shrink-0">
               <img
                 src={imagePreview}
                 alt="Preview"
-                className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-gray-200"
+                className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-border dark:border-border-dark"
               />
               <button
                 onClick={removeImage}
-                className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-red-500 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-error text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
               >
                 ×
               </button>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs sm:text-sm text-gray-600 truncate">{selectedImage?.name}</p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs sm:text-sm text-text-secondary dark:text-text-secondary-dark truncate">{selectedImage?.name}</p>
+              <p className="text-xs text-text-muted dark:text-text-muted-dark">
                 {selectedImage && (selectedImage.size / 1024 / 1024).toFixed(2)} MB
               </p>
             </div>
@@ -145,7 +147,7 @@ const MessageInput = ({ disabled = false }) => {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled || !selectedUser || isSending}
-            className="flex-shrink-0 text-gray-500 hover:text-gray-700 hover:bg-gray-100 p-1.5 sm:p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center"
+            className="flex-shrink-0 text-text-secondary dark:text-text-secondary-dark hover:text-text-primary dark:hover:text-text-primary-dark hover:bg-hover-bg dark:hover:bg-hover-bg-dark p-1.5 sm:p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center"
             title="Attach image"
           >
             <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,14 +163,14 @@ const MessageInput = ({ disabled = false }) => {
             onKeyDown={handleKeyDown}
             placeholder={selectedUser ? "Type a message..." : "Select a contact to start chatting"}
             disabled={disabled || !selectedUser || isSending}
-            className="flex-1 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 h-8 sm:h-10 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#25D366] focus:outline-none text-xs sm:text-sm text-gray-600 bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 h-8 sm:h-10 border border-input-border dark:border-input-border-dark rounded-lg focus:ring-2 focus:ring-green-accent focus:outline-none text-xs sm:text-sm text-text-primary dark:text-text-primary-dark bg-input-bg dark:bg-input-bg-dark disabled:opacity-50 disabled:cursor-not-allowed"
           />
 
           {/* Send button */}
           <button 
             type="submit"
             disabled={!canSend}
-            className="flex-shrink-0 bg-[#25D366] hover:bg-[#20bd5a] disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg transition text-xs sm:text-sm font-medium min-w-[50px] sm:min-w-[60px] h-8 sm:h-10 flex items-center justify-center"
+            className="flex-shrink-0 bg-green-accent hover:bg-[#20bd5a] disabled:bg-text-muted dark:disabled:bg-text-muted-dark disabled:cursor-not-allowed text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg transition text-xs sm:text-sm font-medium min-w-[50px] sm:min-w-[60px] h-8 sm:h-10 flex items-center justify-center"
           >
             {isSending ? (
               <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useChatStore } from '../store/useChatStore';
 import SidebarSkeleton from './skeleton/SidebarSkeleton';
 import { useAuthStore } from '../store/useAuthStore';
+import { useThemeStore } from '../store/useThemeStore';
 
 const Sidebar = () => {
   const { users, isUserLoading, selectedUser, getMessages } = useChatStore();
   const { onlineUsers } = useAuthStore();
+  const { isDark } = useThemeStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
   // Filter users based on online status
@@ -21,9 +23,9 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="h-full bg-white flex flex-col">
+    <div className={`${isDark ? "dark" : ""} h-full bg-header-bg dark:bg-header-bg-dark flex flex-col`}>
       {/* Fixed Header */}
-      <div className="bg-[#25D366] px-2 sm:px-3 md:px-4 py-2 sm:py-3 flex items-center justify-between flex-shrink-0">
+      <div className="bg-green-accent px-2 sm:px-3 md:px-4 py-2 sm:py-3 flex items-center justify-between flex-shrink-0">
         <h2 className="text-white font-semibold text-sm sm:text-base md:text-lg">Contacts</h2>
         <label className="flex items-center space-x-1 sm:space-x-2 text-white text-xs md:text-sm">
           <input
@@ -42,7 +44,7 @@ const Sidebar = () => {
           <SidebarSkeleton />
         ) : filteredUsers.length === 0 ? (
           <div className="flex items-center justify-center py-6 md:py-8">
-            <div className="text-gray-500 text-xs md:text-sm text-center px-4">
+            <div className="text-text-secondary dark:text-text-secondary-dark text-xs md:text-sm text-center px-4">
               {showOnlineOnly ? 'No online contacts found' : 'No contacts found'}
             </div>
           </div>
@@ -55,8 +57,8 @@ const Sidebar = () => {
               <div
                 key={contact._id}
                 onClick={() => handleUserSelect(contact)}
-                className={`px-2 sm:px-3 md:px-4 py-2 sm:py-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition active:bg-gray-100 ${
-                  selectedUser?._id === contact._id ? 'bg-[#f0f9f4]' : ''
+                className={`px-2 sm:px-3 md:px-4 py-2 sm:py-3 border-b border-border dark:border-border-dark cursor-pointer hover:bg-hover-bg dark:hover:bg-hover-bg-dark transition active:bg-hover-bg dark:active:bg-hover-bg-dark ${
+                  selectedUser?._id === contact._id ? 'bg-green-50 dark:bg-secondary-dark' : ''
                 }`}
               >
                 <div className="flex items-center space-x-2 md:space-x-3">
@@ -68,7 +70,7 @@ const Sidebar = () => {
                         className="w-full h-full object-cover rounded-full"
                       />
                     ) : (
-                      <div className="w-full h-full bg-[#25D366] rounded-full flex items-center justify-center">
+                      <div className="w-full h-full bg-green-accent rounded-full flex items-center justify-center">
                         <span className="text-white font-semibold text-xs sm:text-sm md:text-base">
                           {contact.name?.charAt(0).toUpperCase() || 'U'}
                         </span>
@@ -76,16 +78,16 @@ const Sidebar = () => {
                     )}
                     {/* Online indicator dot */}
                     {isContactOnline && (
-                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-success border-2 border-white rounded-full"></div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-800 text-sm md:text-base truncate">
+                    <h3 className="font-semibold text-text-primary dark:text-text-primary-dark text-sm md:text-base truncate">
                       {contact.name}
                     </h3>
-                    <p className="text-gray-500 text-xs md:text-sm flex items-center">
+                    <p className="text-text-secondary dark:text-text-secondary-dark text-xs md:text-sm flex items-center">
                       <span className={`w-2 h-2 rounded-full mr-1.5 sm:mr-2 flex-shrink-0 ${
-                        isContactOnline ? 'bg-green-500' : 'bg-gray-400'
+                        isContactOnline ? 'bg-success' : 'bg-text-muted dark:bg-text-muted-dark'
                       }`}></span>
                       <span className="truncate text-xs sm:text-sm">{isContactOnline ? 'Online' : 'Offline'}</span>
                     </p>

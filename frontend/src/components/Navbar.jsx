@@ -3,8 +3,8 @@ import { useNavigate} from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { MdChat } from "react-icons/md";
 import { GrLogout } from "react-icons/gr";
-import { IoMdSettings } from "react-icons/io";
-
+import { useThemeStore } from "../store/useThemeStore";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
 const Navbar = () => {
   const { authUser, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -20,12 +20,17 @@ const Navbar = () => {
     navigate("/profile");
   };
 
+
+
+  const {isDark, setTheme} = useThemeStore();
+
   const goToHomepage = () => {
     navigate("/");
   };
 
   return (
-    <div className="flex justify-between items-center px-3 sm:px-4 md:px-6 py-2 sm:py-3 bg-[#ECE5DD] shadow-md flex-shrink-0 h-14 sm:h-16">
+
+    <div className={`${isDark?"dark":""} flex justify-between items-center px-3 sm:px-4 md:px-6 py-2 sm:py-3 bg-primary1 dark:bg-primary-dark shadow-md flex-shrink-0 h-14 sm:h-16`}>
       {/* Left side */}
       <div className="flex items-center gap-1 sm:gap-2">
         {/* Chat logo/icon - responsive sizing */}
@@ -79,9 +84,9 @@ const Navbar = () => {
         {/* Settings button */}
         <button 
           className="p-1.5 sm:p-2 text-black hover:text-gray-700 rounded-full transition-colors"
-          title="Settings"
-        >
-          <IoMdSettings className="text-lg sm:text-xl md:text-2xl" />
+          title="Settings" onClick={setTheme}
+        >{isDark?
+          <MdLightMode className="text-lg sm:text-xl md:text-2xl" />:<MdDarkMode className="text-lg sm:text-xl md:text-2xl" />}
         </button>
       </div>
     </div>

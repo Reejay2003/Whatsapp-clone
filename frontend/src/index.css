@@ -1,3 +1,42 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme{
+    /* Light theme colors (extracted from your components) */
+    --color-primary1: #ECE5DD;
+    --color-secondary: #F3F2EC; 
+    --color-textc: #FFFFFF;
+    --color-header-bg: #ffffff;        /* ChatHeader background */
+    --color-border: #e5e7eb;           /* border-gray-200 */
+    --color-text-primary: #1f2937;     /* text-gray-800 */
+    --color-text-secondary: #6b7280;   /* text-gray-500 */
+    --color-text-muted: #9ca3af;       /* text-gray-400 */
+    --color-hover-bg: #f3f4f6;         /* hover:bg-gray-100 */
+    --color-message-bg: #ffffff;       /* Light message bubbles */
+    --color-message-received: #f3f4f6; /* bg-base-200 equivalent */
+    --color-green-accent: #25D366;     /* WhatsApp green */
+    --color-blue-accent: #3b82f6;      /* text-blue-600 */
+    --color-success: #10b981;          /* green-500 */
+    --color-error: #ef4444;            /* red-500 */
+    --color-input-bg: #ffffff;         /* Input backgrounds */
+    --color-input-border: #e5e7eb;     /* Input borders */
+    
+    /* Dark theme colors */
+    --color-primary-dark: #37353E;
+    --color-secondary-dark: #44444E;
+    --color-textc-dark: #D3DAD9;
+    --color-header-bg-dark: #44444E;
+    --color-border-dark: #715A5A;
+    --color-text-primary-dark: #D3DAD9;
+    --color-text-secondary-dark: #9ca3af;
+    --color-text-muted-dark: #6b7280;
+    --color-hover-bg-dark: #715A5A;
+    --color-message-bg-dark: #37353E;
+    --color-message-received-dark: #715A5A;
+    --color-success-dark: #10b981;
+    --color-error-dark: #ef4444;
+    --color-input-bg-dark: #44444E;
+    --color-input-border-dark: #715A5A;
+}
