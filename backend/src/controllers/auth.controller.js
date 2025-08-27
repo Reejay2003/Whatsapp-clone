@@ -5,6 +5,31 @@ import bcrypt from "bcryptjs"
 import cloudinary from "../lib/cloudinary.js";
 const router = express.Router();
 
+
+
+// --- add these two controller functions ---
+export const setDhPublicKey = async (req, res) => {
+  try {
+    const { publicJwk } = req.body;
+    if (!publicJwk) return res.status(400).json({ message: "publicJwk required" });
+    await User.findByIdAndUpdate(req.user._id, { e2ePublicKey: publicJwk });
+    return res.status(200).json({ ok: true });
+  } catch (e) {
+    return res.status(500).json({ message: e.message });
+  }
+};
+
+export const getDhPublicKey = async (req, res) => {
+  try {
+    const { id } = req.params; // userId
+    const user = await User.findById(id).select("e2ePublicKey");
+    return res.status(200).json({ publicJwk: user?.e2ePublicKey || null });
+  } catch (e) {
+    return res.status(500).json({ message: e.message });
+  }
+};
+// ------------------------------------
+
 export const signup = async(req,res)=>{
     try{
         const {name,email,password} = req.body;
@@ -24,7 +49,7 @@ export const signup = async(req,res)=>{
         if(newUser){
             generateJWT(newUser._id, res);
             await newUser.save();
-            res.status(201).json({newUser});
+            res.status(201).json({ message: "Signed up Successfully", user: newUser.toObject() });
         }else{
             return res.status(200).json({message: "Invalid User Data"});
         }

@@ -20,7 +20,8 @@ const userSchema = new mongoose.Schema({
     },profilePic: {
         type: String,
         default: "",
-      },
+    },
+    e2ePublicKey: { type: Object, default: null },
 },{timestamps:true} );
 
 export default mongoose.model("User",userSchema); 

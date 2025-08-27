@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 import {io} from "socket.io-client";
+import { publishMyPublicKey, ensureDeviceKeypair } from "../lib/e2ee";
 
 // Separate URLs for API and Socket.IO
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5002/api" : "/";
@@ -20,6 +21,8 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.get("/auth/check");
       set({ authUser: res.data });
+      await ensureDeviceKeypair();
+      await publishMyPublicKey();
       get().connectSocket();
     } catch (error) {
       console.log("Error in checkAuth:", error);
@@ -34,6 +37,8 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post("/auth/signup", data);
       set({authUser: res.data});
+      await ensureDeviceKeypair();
+      await publishMyPublicKey();
       toast.success("Signed up Successfully");
       get().connectSocket();
       return true;
@@ -50,6 +55,8 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post("/auth/login", data);
       set({authUser: res.data});
+      await ensureDeviceKeypair();
+      await publishMyPublicKey();
       toast.success("Logged in Successfully");
       get().connectSocket();
       return true;

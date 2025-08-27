@@ -34,47 +34,51 @@ export const getMessages = async (req, res) => {
     }
 };
   
-export const sendMessage = async(req, res) => {
+export const sendMessage = async (req, res) => {
     try {
-        const { image, text } = req.body;
-        const { id: userToChatId } = req.params;
-        const senderId = req.user._id;
-
-        // Validate that we have either text or image
-        if (!text && !image) {
-            return res.status(400).json({ error: "Message must contain text or image" });
-        }
-
-        let imageUrl;
-        if (image) {
-            try {
-                // Fixed: Use proper variable name and await the upload
-                const uploadResponse = await cloudinary.uploader.upload(image);
-                imageUrl = uploadResponse.secure_url;
-            } catch (uploadError) {
-                console.log("Error uploading image:", uploadError);
-                return res.status(500).json({ error: "Failed to upload image" });
-            }
-        }
-
+      const { text, image } = req.body;
+      const { id: userToChatId } = req.params;
+      const senderId = req.user._id;
+  
+      // If this is an E2EE message, don't touch it
+      if (text && text.startsWith("e2e1:")) {
         const newMessage = new Message({
-            senderId,
-            receiverId: userToChatId,
-            image: imageUrl,
-            text: text || ""
+          senderId,
+          receiverId: userToChatId,
+          text,   // ciphertext blob
+          image: null
         });
-
         await newMessage.save();
-
         const receiverSocketId = getReceiverSocketId(userToChatId);
-        if(receiverSocketId){
-            io.to(receiverSocketId).emit("newMessage", newMessage);
-        }
-       
-
-        res.status(201).json(newMessage);
+        if (receiverSocketId) io.to(receiverSocketId).emit("newMessage", newMessage);
+        return res.status(201).json(newMessage);
+      }
+  
+      // 🔓 fallback (old messages without E2EE)
+      if (!text && !image) {
+        return res.status(400).json({ error: "Message must contain text or image" });
+      }
+  
+      let imageUrl;
+      if (image) {
+        const uploadResponse = await cloudinary.uploader.upload(image);
+        imageUrl = uploadResponse.secure_url;
+      }
+  
+      const newMessage = new Message({
+        senderId,
+        receiverId: userToChatId,
+        image: imageUrl,
+        text: text || ""
+      });
+  
+      await newMessage.save();
+      const receiverSocketId = getReceiverSocketId(userToChatId);
+      if (receiverSocketId) io.to(receiverSocketId).emit("newMessage", newMessage);
+      res.status(201).json(newMessage);
+  
     } catch (err) {
-        console.log("Error in sendMessage controller:", err.message);
-        return res.status(500).json({error: "Internal server error"});   
+      console.log("Error in sendMessage controller:", err.message);
+      return res.status(500).json({ error: "Internal server error" });
     }
-}
+  };
