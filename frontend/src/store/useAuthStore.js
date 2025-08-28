@@ -26,38 +26,43 @@ export const useAuthStore = create((set, get) => ({
   onlineUsers: [],
   socket: null,
 
+  // Chat store can subscribe (set this) to drop cached conv keys on restore
+  onKeysRestored: null,
+
   checkAuth: async () => {
     try {
       const res = await axiosInstance.get("/auth/check");
       set({ authUser: res.data });
 
-      // Ensure device has a keypair and publish current public key
-      await ensureDeviceKeypair();
-      await publishMyPublicKey();
-
-      get().connectSocket();
-
-      // If local private key missing (e.g., storage wiped), try to restore from backup
-      const haveLocal = !!(await exportPrivateJwkPlain());
+      // ---- RESTORE FIRST (if missing) ----
+      let haveLocal = !!(await exportPrivateJwkPlain());
       if (!haveLocal) {
         const backup = await fetchMyKeyBackup();
         if (backup) {
-          // simplest UX: prompt (replace with your modal later)
           const pwd = window.prompt("Enter your account password to restore encrypted chat keys");
           if (pwd) {
             try {
               await restorePrivateKeyFromBackup(pwd, backup);
-              await publishMyPublicKey();
               toast.success("Encryption keys restored");
+              const cb = get().onKeysRestored;
+              if (typeof cb === "function") cb(); // let chat store clear cached conv keys
             } catch (e) {
               console.warn("Key restore failed:", e?.message);
               toast.error("Failed to restore keys (wrong password?)");
             }
-          } else {
-            // optional: toast("You can restore keys later from Profile");
           }
         }
       }
+
+      // ---- Ensure a keypair exists (restore may not have provided one) ----
+      await ensureDeviceKeypair();
+
+      // ---- Publish AFTER keys are settled ----
+      await publishMyPublicKey();
+
+      // ---- Connect socket last ----
+      get().connectSocket();
+
     } catch (error) {
       console.log("Error in checkAuth:", error);
       set({ authUser: null });

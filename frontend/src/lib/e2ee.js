@@ -11,6 +11,28 @@ const CURVE = "P-256";
 const LS_PRIV = "e2e_priv_jwk_v1";
 const LS_PUB  = "e2e_pub_jwk_v1";
 
+// ---------- Safe, chunked Base64URL encode/decode (handles big payloads) ----------
+function toB64Url(buf) {
+  const bytes = new Uint8Array(buf);
+  const chunkSize = 0x8000; // 32 KB
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  const b64 = btoa(binary);
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+function fromB64Url(s) {
+  let b64 = s.replace(/-/g, "+").replace(/_/g, "/");
+  const pad = b64.length % 4;
+  if (pad) b64 += "=".repeat(4 - pad);
+  const binary = atob(b64);
+  const len = binary.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
 
 // ---------- device keypair (browser only) ----------
 export async function ensureDeviceKeypair() {
@@ -130,14 +152,20 @@ export async function exportPrivateJwkPlain() {
   return jwk ? JSON.parse(jwk) : null;
 }
 
+// IMPORTANT: when restoring a private key, also sync the public JWK
 export async function importPrivateJwkPlain(jwk) {
   localStorage.setItem(LS_PRIV, JSON.stringify(jwk));
+  // If private JWK has x/y, refresh the public slot
+  if (jwk?.x && jwk?.y && jwk?.crv) {
+    const pub = { kty: "EC", crv: jwk.crv, x: jwk.x, y: jwk.y };
+    localStorage.setItem(LS_PUB, JSON.stringify(pub));
+  }
   return true;
 }
 
 async function deriveKeyFromPassword(password, saltB64, iters) {
   const salt = new Uint8Array(fromB64Url(saltB64));
-  const base = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]);
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
   return crypto.subtle.deriveKey(
     { name: "PBKDF2", hash: "SHA-256", salt, iterations: iters },
     base,
@@ -150,7 +178,7 @@ async function deriveKeyFromPassword(password, saltB64, iters) {
 export async function createEncryptedKeyBackup(password) {
   const jwk = await exportPrivateJwkPlain();
   if (!jwk) throw new Error("No private key to back up");
-  const iters = 200_000; // adjust for UX
+  const iters = 200_000;
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv   = crypto.getRandomValues(new Uint8Array(12));
   const k    = await deriveKeyFromPassword(password, toB64Url(salt.buffer), iters);
@@ -176,7 +204,7 @@ export async function restorePrivateKeyFromBackup(password, backup) {
     fromB64Url(ct)
   );
   const jwk = JSON.parse(dec.decode(pt));
-  await importPrivateJwkPlain(jwk);
+  await importPrivateJwkPlain(jwk); // also refreshes LS_PUB
   return jwk;
 }
 
@@ -187,29 +215,4 @@ export async function uploadKeyBackup(backupObj) {
 export async function fetchMyKeyBackup() {
   const { data } = await axiosInstance.get("/auth/keybackup");
   return data?.backup || null;
-}
-
-// Safe, chunked Base64URL encode/decode for big ArrayBuffers
-
-function toB64Url(buf) {
-  const bytes = new Uint8Array(buf);
-  const chunkSize = 0x8000; // 32 KB per chunk to avoid call stack overflow
-  let binary = "";
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    const chunk = bytes.subarray(i, i + chunkSize);
-    binary += String.fromCharCode.apply(null, chunk);
-  }
-  const b64 = btoa(binary);
-  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-}
-
-function fromB64Url(s) {
-  let b64 = s.replace(/-/g, "+").replace(/_/g, "/");
-  const pad = b64.length % 4;
-  if (pad) b64 += "=".repeat(4 - pad);
-  const binary = atob(b64);
-  const len = binary.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes.buffer;
 }
