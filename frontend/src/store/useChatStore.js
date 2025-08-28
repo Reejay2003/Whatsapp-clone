@@ -42,22 +42,34 @@ export const useChatStore = create((set, get) => ({
 
   // decrypt list helper
   _decryptMany: async (list, otherId) => {
-    const key = await get()._getConvKeyFor(otherId);
+    const tryDecrypt = async (msg, key) => {
+      const packed = tryUnpackFromText(msg.text);
+      if (!packed) return msg; // plaintext or non-e2e
+      const plain = await decryptPayload(key, packed);
+      return { ...msg, text: plain.text || "", image: plain.image || null, _e2e: true };
+    };
+  
     const out = [];
+    let key = await get()._getConvKeyFor(otherId);
+  
     for (const m of list) {
-      const packed = tryUnpackFromText(m.text);
-      if (!packed) { out.push(m); continue; } // plaintext (old messages)
       try {
-        const plain = await decryptPayload(key, packed);
-        out.push({
-          ...m,
-          text: plain.text || "",
-          image: plain.image || null,
-          _e2e: true,
-        });
+        out.push(await tryDecrypt(m, key));
       } catch (e) {
-        console.error("Decrypt failed for msg", m._id, e);
-        out.push({ ...m, text: "[Unable to decrypt]" });
+        // Only retry on crypto OperationError / auth tag fail
+        if (String(e).includes("OperationError")) {
+          try {
+            // blow away cached key & re-derive from latest peer pubkey
+            key = await get()._refreshConvKeyFor(otherId);
+            out.push(await tryDecrypt(m, key));
+          } catch (e2) {
+            console.error("Decrypt failed (after refresh) for msg", m._id, e2?.message);
+            out.push({ ...m, text: "[Unable to decrypt]" });
+          }
+        } else {
+          console.error("Decrypt failed for msg", m._id, e?.message);
+          out.push({ ...m, text: "[Unable to decrypt]" });
+        }
       }
     }
     return out;
@@ -126,4 +138,12 @@ export const useChatStore = create((set, get) => ({
   setSelectedUser: (selectedUser) => {
     set({ selectedUser });
   },
+
+ 
+  async _refreshConvKeyFor(userId) {
+    const peerPub = await fetchPeerPublicKey(userId); // fetch latest
+    const key = await deriveConversationKey(peerPub);
+    set({ _convKeys: { ...get()._convKeys, [userId]: key } });
+    return key;
+  }
 }));

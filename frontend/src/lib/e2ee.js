@@ -86,34 +86,51 @@ export async function publicKeyFingerprintHex(jwk) {
   return hex.match(/.{1,8}/g).join("-");
 }
 
-// ---------- encrypt / decrypt ----------
-export async function encryptPayload(key, obj) {
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const plaintext = enc.encode(JSON.stringify(obj));
-  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plaintext);
-  return {
-    v: E2E_VERSION,
-    iv: b64(iv.buffer),
-    ct: b64(ct),
-  };
-}
-
-export async function decryptPayload(key, pkg) {
-  const iv = ubuf(pkg.iv);
-  const ct = ubuf(pkg.ct);
-  const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: new Uint8Array(iv) }, key, ct);
-  return JSON.parse(dec.decode(pt));
-}
-
 // ---------- packing into your existing "text" field ----------
 export function packToText(pkg) {
   // e2e1:<base64ct>:<base64iv>
   return `${pkg.v}:${pkg.ct}:${pkg.iv}`;
 }
 
+function toB64Url(buf) {
+  const b64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+function fromB64Url(s) {
+  let b64 = s.replace(/-/g, "+").replace(/_/g, "/");
+  const pad = b64.length % 4;
+  if (pad) b64 += "=".repeat(4 - pad);
+  return Uint8Array.from(atob(b64), c => c.charCodeAt(0)).buffer;
+}
+
+export async function encryptPayload(key, obj) {
+  const iv = crypto.getRandomValues(new Uint8Array(12)); // AES-GCM 96-bit IV
+  const pt = new TextEncoder().encode(JSON.stringify(obj));
+  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, pt);
+  return { v: "e2e1", iv: toB64Url(iv.buffer), ct: toB64Url(ct) };
+}
+
+export async function decryptPayload(key, pkg) {
+  if (!pkg?.iv || !pkg?.ct) throw new Error("Missing iv/ct");
+  const ivBuf = fromB64Url(pkg.iv);
+  if (new Uint8Array(ivBuf).byteLength !== 12) throw new Error("Bad IV size");
+  const ctBuf = fromB64Url(pkg.ct);
+  const pt = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: new Uint8Array(ivBuf) },
+    key,
+    ctBuf
+  );
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+// safer split (only into 3 parts)
 export function tryUnpackFromText(text) {
-  if (!text || typeof text !== "string") return null;
-  if (!text.startsWith(`${E2E_VERSION}:`)) return null;
-  const [_v, ct, iv] = text.split(":");
-  return { v: E2E_VERSION, ct, iv };
+  if (typeof text !== "string" || !text.startsWith("e2e1:")) return null;
+  const first = text.indexOf(":");
+  const second = text.indexOf(":", first + 1);
+  if (first === -1 || second === -1) return null;
+  const v = text.slice(0, first);
+  const ct = text.slice(first + 1, second).replace(/\s+/g, "");
+  const iv = text.slice(second + 1).replace(/\s+/g, "");
+  return { v, ct, iv };
 }
