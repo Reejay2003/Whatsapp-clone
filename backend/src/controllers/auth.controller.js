@@ -130,3 +130,20 @@ export const checkAuth = (req, res) => {
         return res.status(400).json({ message: err.message });
     }
 }
+
+export const setKeyBackup = async (req, res) => {
+  try {
+    const { v, kdf, iters, salt, iv, ct } = req.body || {};
+    if (!v || !kdf || !iters || !salt || !iv || !ct)
+      return res.status(400).json({ message: "Invalid backup payload" });
+    await User.findByIdAndUpdate(req.user._id, { e2eKeyBackup: { v, kdf, iters, salt, iv, ct } });
+    res.status(200).json({ ok: true });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+};
+
+export const getKeyBackup = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("e2eKeyBackup");
+    res.status(200).json({ backup: user?.e2eKeyBackup || null });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+};

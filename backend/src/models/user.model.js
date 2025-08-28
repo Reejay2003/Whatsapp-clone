@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
         default: "",
     },
     e2ePublicKey: { type: Object, default: null },
+    e2eKeyBackup: { type: Object, default: null }, // will store {v,kdf,iters,salt,iv,ct}
 },{timestamps:true} );
 
 export default mongoose.model("User",userSchema); 

@@ -1,5 +1,5 @@
 import express from "express";
-import { checkAuth, login, logout, signup, updateprofile, setDhPublicKey, getDhPublicKey } from "../controllers/auth.controller.js";
+import { setKeyBackup, getKeyBackup, checkAuth, login, logout, signup, updateprofile, setDhPublicKey, getDhPublicKey } from "../controllers/auth.controller.js";
 import { protectedRoute } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
@@ -17,5 +17,9 @@ router.get("/check", protectedRoute, checkAuth);
 router.put("/dhkey", protectedRoute, setDhPublicKey);      // save my public key
 
 router.get("/dhkey/:id", protectedRoute, getDhPublicKey);  // get someone else’s public key
+
+router.put("/keybackup", protectedRoute, setKeyBackup);
+
+router.get("/keybackup", protectedRoute, getKeyBackup);
 
 export default router;
