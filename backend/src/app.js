@@ -14,8 +14,8 @@ const __dirname=path.resolve()
 
 // Middleware setup (fixed order and removed duplicate)
 app.use(cors({
-  origin:true,
-  credentials:true
+  origin: true, //Temporary: allows any website to connect
+  credentials: true
 }));
 
 app.use(express.json({ limit: '10mb' })); // Only this one - with limit
