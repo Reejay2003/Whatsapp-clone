@@ -14,10 +14,7 @@ const __dirname=path.resolve()
 
 // Middleware setup (fixed order and removed duplicate)
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    process.env.CLIENT_URL // This will be your Vercel URL later
-  ],
+  origin: true, //Temporary: allows any website to connect
   credentials: true
 }));
 
