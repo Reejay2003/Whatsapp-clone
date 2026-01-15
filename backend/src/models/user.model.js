@@ -1,27 +1,34 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-    email:{
-        type:String,
-        required:true,
-        unique:true
-    },
-    password:{
-        type:String,
-        required:true,
-    },
-    name:{
-        type:String,
-        required:true, 
-    },
-    name:{
-        type:String,
-        default:"", 
-    },profilePic: {
-        type: String,
-        default: "",
-    },
-    e2ePublicKey: { type: Object, default: null },
-},{timestamps:true} );
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  profilePic: {
+    type: String,
+    default: "",
+  },
+  addedPpl: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    }
+  ],
 
-export default mongoose.model("User",userSchema); 
+  // E2EE
+  e2ePublicKey: { type: Object, default: null },  // JWK (public)
+  e2eKeyBackup: { type: Object, default: null },  // {v,kdf,iters,salt,iv,ct}
+
+}, { timestamps: true });
+
+export default mongoose.model("User", userSchema);

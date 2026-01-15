@@ -5,21 +5,27 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useThemeStore } from '../store/useThemeStore';
 
 const Sidebar = () => {
-  const { users, isUserLoading, selectedUser, getMessages } = useChatStore();
+  const { users, isUserLoading, selectedUser, getMessages, addUserByEmail } = useChatStore();
   const { onlineUsers } = useAuthStore();
   const { isDark } = useThemeStore();
+
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
+  const [emailInput, setEmailInput] = useState('');
 
   // Filter users based on online status
-  const filteredUsers = showOnlineOnly 
+  const filteredUsers = showOnlineOnly
     ? users.filter(user => onlineUsers.includes(user._id))
     : users;
 
   const handleUserSelect = (selectedUser) => {
-    // Set the selected user and get messages
     useChatStore.setState({ selectedUser });
     getMessages(selectedUser._id);
-    // On mobile, this will trigger the view switch in HomePage
+  };
+
+  const handleAddUserByEmail = async () => {
+    if (!emailInput.trim()) return;
+    await addUserByEmail(emailInput.trim());
+    setEmailInput(''); // clear after adding
   };
 
   return (
@@ -38,6 +44,23 @@ const Sidebar = () => {
         </label>
       </div>
 
+      {/* Search Bar */}
+      <div className="px-2 sm:px-3 md:px-4 py-2 sm:py-3 border-b border-border dark:border-border-dark">
+        <input
+          type="email"
+          placeholder="Enter email to add..."
+          value={emailInput}
+          onChange={(e) => setEmailInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleAddUserByEmail();
+            }
+          }}
+          className="w-full px-2 py-1 rounded bg-white dark:bg-secondary-dark text-text-primary dark:text-text-primary-dark border border-border dark:border-border-dark focus:outline-none focus:ring-2 focus:ring-green-accent placeholder:text-text-secondary dark:placeholder:text-text-secondary-dark"
+        />
+      </div>
+
       {/* Scrollable Users List */}
       <div className="flex-1 overflow-y-auto">
         {isUserLoading ? (
@@ -50,9 +73,8 @@ const Sidebar = () => {
           </div>
         ) : (
           filteredUsers.map((contact) => {
-            // Check if user is online by looking in onlineUsers array
             const isContactOnline = onlineUsers.includes(contact._id);
-            
+
             return (
               <div
                 key={contact._id}
@@ -86,9 +108,11 @@ const Sidebar = () => {
                       {contact.name}
                     </h3>
                     <p className="text-text-secondary dark:text-text-secondary-dark text-xs md:text-sm flex items-center">
-                      <span className={`w-2 h-2 rounded-full mr-1.5 sm:mr-2 flex-shrink-0 ${
-                        isContactOnline ? 'bg-success' : 'bg-text-muted dark:bg-text-muted-dark'
-                      }`}></span>
+                      <span
+                        className={`w-2 h-2 rounded-full mr-1.5 sm:mr-2 flex-shrink-0 ${
+                          isContactOnline ? 'bg-success' : 'bg-text-muted dark:bg-text-muted-dark'
+                        }`}
+                      ></span>
                       <span className="truncate text-xs sm:text-sm">{isContactOnline ? 'Online' : 'Offline'}</span>
                     </p>
                   </div>
