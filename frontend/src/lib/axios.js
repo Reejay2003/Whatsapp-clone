@@ -4,11 +4,13 @@ const getBaseURL = () => {
   if (import.meta.env.MODE === "development") {
     return "http://localhost:5002/api";
   }
-  return import.meta.env.VITE_API_URL || "/api";
+  // In production, use environment variable or fall back to relative URL
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  return backendUrl ? `${backendUrl}/api` : "/api";
 };
 
 export const axiosInstance = axios.create({
-    baseURL: import.meta.env.MODE === "development" ? "http://localhost:5002/api" : "/api",
+    baseURL: getBaseURL(),
     withCredentials:true
 })
 

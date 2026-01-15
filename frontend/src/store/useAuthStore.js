@@ -14,8 +14,15 @@ import {
 } from "../lib/e2ee";
 
 // Separate URLs for API and Socket.IO
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5002/api" : "/";
-const SOCKET_URL = import.meta.env.MODE === "development" ? "http://localhost:5002" : "/";
+const getSocketURL = () => {
+  if (import.meta.env.MODE === "development") {
+    return "http://localhost:5002";
+  }
+  // In production, use environment variable or fall back to relative URL
+  return import.meta.env.VITE_BACKEND_URL || "/";
+};
+
+const SOCKET_URL = getSocketURL();
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,

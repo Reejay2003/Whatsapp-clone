@@ -69,6 +69,72 @@ npm run dev
 
 The backend will run on `http://localhost:5000` and the frontend on `http://localhost:5173`.
 
+## Deployment
+
+This project can be deployed using different strategies depending on your needs:
+
+### Deployment on Vercel (Recommended for Frontend)
+
+Vercel is ideal for deploying the frontend with automatic CI/CD. The backend should be deployed separately on a service that supports WebSocket connections (like Render, Railway, or Heroku).
+
+#### Prerequisites
+1. A Vercel account ([sign up](https://vercel.com))
+2. Backend deployed on a platform that supports WebSockets (see Render deployment below)
+
+#### Deployment Steps
+
+1. **Deploy Backend First** (see Render deployment section below)
+   - Deploy your backend to Render, Railway, or another service
+   - Note your backend URL (e.g., `https://your-backend.onrender.com`)
+
+2. **Deploy Frontend to Vercel**
+   - Fork or push this repository to GitHub
+   - Log in to [Vercel](https://vercel.com)
+   - Click "New Project"
+   - Import your GitHub repository
+   - Vercel will automatically detect the configuration from `vercel.json`
+   
+3. **Configure Environment Variables** (Optional)
+   - In your Vercel project settings, go to "Environment Variables"
+   - Add `VITE_BACKEND_URL` with your backend URL (e.g., `https://your-backend.onrender.com`)
+   - This allows the frontend to connect to your backend API
+   
+   **Note**: If you don't set `VITE_BACKEND_URL`, the default configuration in `vercel.json` will proxy API requests to `https://whatsapp-clone-waxc.onrender.com`. You should update the `vercel.json` file to point to your own backend URL, or use the environment variable approach.
+
+4. **Deploy**
+   - Click "Deploy"
+   - Vercel will build and deploy your frontend
+   - Your app will be available at `https://your-project.vercel.app`
+
+#### Updating the Default Backend URL
+
+If you want to use a different backend URL as the default (instead of environment variables), update the `vercel.json` file in the root directory:
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://YOUR-BACKEND-URL.onrender.com/api/:path*"
+    },
+    {
+      "source": "/socket.io/:path*",
+      "destination": "https://YOUR-BACKEND-URL.onrender.com/socket.io/:path*"
+    }
+  ]
+}
+```
+
+Replace `YOUR-BACKEND-URL.onrender.com` with your actual backend URL.
+
+#### How Vercel Deployment Works
+
+1. Vercel builds the frontend React application using Vite
+2. Static files are deployed to Vercel's CDN
+3. API requests to `/api/*` are proxied to your backend server
+4. Socket.io connections to `/socket.io/*` are proxied to your backend server
+5. All other requests serve the React application
+
 ## Deployment on Render
 
 This project is configured for easy deployment on Render using the included `render.yaml` file.
