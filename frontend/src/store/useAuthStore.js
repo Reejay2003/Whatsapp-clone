@@ -14,9 +14,9 @@ import {
 } from "../lib/e2ee";
 
 // Socket.io connection URL configuration
-// In production, use VITE_BACKEND_URL environment variable if set,
-// otherwise fall back to relative URL "/" which relies on
-// Vercel rewrites in vercel.json to proxy to the backend server
+// In production, use VITE_BACKEND_URL environment variable if set, otherwise
+// fall back to relative URL "/" which relies on deployment platform rewrites
+// (e.g., vercel.json for Vercel) to proxy to the backend server
 const getSocketURL = () => {
   if (import.meta.env.MODE === "development") {
     return "http://localhost:5002";
@@ -25,7 +25,7 @@ const getSocketURL = () => {
   if (!backendUrl) {
     console.warn(
       "VITE_BACKEND_URL not set. Falling back to relative URL '/'. " +
-      "Ensure vercel.json rewrites are configured to proxy to your backend."
+      "Ensure your deployment platform is configured to proxy requests to your backend."
     );
   }
   return backendUrl || "/";
