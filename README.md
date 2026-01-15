@@ -89,45 +89,34 @@ Vercel is ideal for deploying the frontend with automatic CI/CD. The backend sho
    - Deploy your backend to Render, Railway, or another service
    - Note your backend URL (e.g., `https://your-backend.onrender.com`)
 
-2. **Deploy Frontend to Vercel**
+2. **Update Backend URL** (Choose one option)
+   
+   **Option A: Update vercel.json** (Required if not using environment variables)
+   - Open `vercel.json` in the root directory
+   - Replace `YOUR-BACKEND-URL.onrender.com` with your actual backend URL
+   - Commit and push the changes
+   
+   **Option B: Use Environment Variables** (Recommended)
+   - Skip updating `vercel.json`
+   - Configure `VITE_BACKEND_URL` in Vercel (see step 4 below)
+
+3. **Deploy Frontend to Vercel**
    - Fork or push this repository to GitHub
    - Log in to [Vercel](https://vercel.com)
    - Click "New Project"
    - Import your GitHub repository
    - Vercel will automatically detect the configuration from `vercel.json`
    
-3. **Configure Environment Variables** (Optional)
+4. **Configure Environment Variables** (If using Option B above)
    - In your Vercel project settings, go to "Environment Variables"
    - Add `VITE_BACKEND_URL` with your backend URL (e.g., `https://your-backend.onrender.com`)
-   - This allows the frontend to connect to your backend API
-   
-   ⚠️ **IMPORTANT**: If you don't set `VITE_BACKEND_URL`, you MUST update the backend URL in `vercel.json` (see below). The default URL is a demo and will not work for your deployment.
+   - This overrides the URL in `vercel.json` and allows the frontend to connect to your backend API
+   - Add it for Production, Preview, and Development environments
 
-4. **Deploy**
+5. **Deploy**
    - Click "Deploy"
    - Vercel will build and deploy your frontend
    - Your app will be available at `https://your-project.vercel.app`
-
-#### Updating the Default Backend URL
-
-If you want to use a different backend URL as the default (instead of environment variables), update the `vercel.json` file in the root directory:
-
-```json
-{
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://YOUR-BACKEND-URL.onrender.com/api/:path*"
-    },
-    {
-      "source": "/socket.io/:path*",
-      "destination": "https://YOUR-BACKEND-URL.onrender.com/socket.io/:path*"
-    }
-  ]
-}
-```
-
-Replace `YOUR-BACKEND-URL.onrender.com` with your actual backend URL.
 
 #### How Vercel Deployment Works
 

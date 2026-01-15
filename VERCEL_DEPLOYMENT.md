@@ -49,7 +49,33 @@ First, deploy your backend to a platform that supports WebSocket connections:
 4. Railway will auto-detect and deploy your backend
 5. **Note your backend URL**
 
-### Step 2: Deploy the Frontend to Vercel
+### Step 2: Update Backend URL in vercel.json
+
+⚠️ **CRITICAL**: Before deploying to Vercel, you MUST update the backend URL in `vercel.json`:
+
+1. Open `vercel.json` in the root directory
+2. Replace `YOUR-BACKEND-URL.onrender.com` with your actual backend URL from Step 1:
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://your-actual-backend.onrender.com/api/:path*"
+    },
+    {
+      "source": "/socket.io/:path*",
+      "destination": "https://your-actual-backend.onrender.com/socket.io/:path*"
+    }
+  ]
+}
+```
+
+3. Commit and push this change to GitHub
+
+**Alternative**: Instead of hardcoding the URL, you can set the `VITE_BACKEND_URL` environment variable in Vercel (see Step 3 below). This is the recommended approach for flexibility.
+
+### Step 3: Deploy the Frontend to Vercel
 
 #### Method 1: Using the Vercel Dashboard (Easiest)
 
@@ -57,11 +83,12 @@ First, deploy your backend to a platform that supports WebSocket connections:
 2. Click "Add New Project"
 3. Import your GitHub repository
 4. Vercel will automatically detect the `vercel.json` configuration
-5. **Configure Environment Variables** (Optional but recommended):
+5. **Configure Environment Variables** (Recommended alternative to updating vercel.json):
    - Click "Environment Variables"
    - Add variable: `VITE_BACKEND_URL`
    - Value: Your backend URL (e.g., `https://your-app.onrender.com`)
    - Make sure to add it for Production, Preview, and Development environments
+   - If you set this variable, the hardcoded URL in vercel.json will be ignored
 6. Click "Deploy"
 7. Wait for the build to complete (usually 1-2 minutes)
 8. Your frontend will be available at `https://your-project.vercel.app`
@@ -84,33 +111,6 @@ vercel
 # For production deployment
 vercel --prod
 ```
-
-### Step 3: Update Backend URL (if not using environment variables)
-
-⚠️ **IMPORTANT**: The `vercel.json` file currently contains a demo backend URL (`https://whatsapp-clone-waxc.onrender.com`). You MUST update this to point to your own backend deployment.
-
-If you didn't set the `VITE_BACKEND_URL` environment variable, you need to update the `vercel.json` file:
-
-1. Open `vercel.json` in the root directory
-2. Update the `rewrites` section with your backend URL:
-
-```json
-{
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://YOUR-BACKEND-URL.onrender.com/api/:path*"
-    },
-    {
-      "source": "/socket.io/:path*",
-      "destination": "https://YOUR-BACKEND-URL.onrender.com/socket.io/:path*"
-    }
-  ]
-}
-```
-
-3. Commit and push the changes
-4. Vercel will automatically redeploy
 
 ## Configuration Options
 
