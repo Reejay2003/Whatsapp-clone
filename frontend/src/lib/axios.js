@@ -13,6 +13,6 @@ const getBaseURL = () => {
 
 export const axiosInstance = axios.create({
     baseURL: getBaseURL(),
-    withCredentials:true
+    withCredentials: true
 })
 

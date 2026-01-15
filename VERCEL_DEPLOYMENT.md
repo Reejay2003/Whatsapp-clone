@@ -244,6 +244,8 @@ To speed up builds, you can:
 
 ## Cost Considerations
 
+> **Note**: Pricing information is subject to change. Please check the respective platforms for current rates.
+
 ### Vercel Pricing
 - **Hobby Plan** (Free):
   - 100 GB bandwidth/month
