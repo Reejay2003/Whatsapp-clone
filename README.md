@@ -101,7 +101,7 @@ Vercel is ideal for deploying the frontend with automatic CI/CD. The backend sho
    - Add `VITE_BACKEND_URL` with your backend URL (e.g., `https://your-backend.onrender.com`)
    - This allows the frontend to connect to your backend API
    
-   **Note**: If you don't set `VITE_BACKEND_URL`, the default configuration in `vercel.json` will proxy API requests to `https://whatsapp-clone-waxc.onrender.com`. You should update the `vercel.json` file to point to your own backend URL, or use the environment variable approach.
+   ⚠️ **IMPORTANT**: If you don't set `VITE_BACKEND_URL`, you MUST update the backend URL in `vercel.json` (see below). The default URL is a demo and will not work for your deployment.
 
 4. **Deploy**
    - Click "Deploy"

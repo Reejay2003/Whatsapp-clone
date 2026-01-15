@@ -87,6 +87,8 @@ vercel --prod
 
 ### Step 3: Update Backend URL (if not using environment variables)
 
+⚠️ **IMPORTANT**: The `vercel.json` file currently contains a demo backend URL (`https://whatsapp-clone-waxc.onrender.com`). You MUST update this to point to your own backend deployment.
+
 If you didn't set the `VITE_BACKEND_URL` environment variable, you need to update the `vercel.json` file:
 
 1. Open `vercel.json` in the root directory

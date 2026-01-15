@@ -13,13 +13,22 @@ import {
   restorePrivateKeyFromBackup,
 } from "../lib/e2ee";
 
-// Separate URLs for API and Socket.IO
+// Socket.io connection URL configuration
+// In production, use VITE_BACKEND_URL environment variable if set,
+// otherwise fall back to relative URL "/" which relies on
+// Vercel rewrites in vercel.json to proxy to the backend server
 const getSocketURL = () => {
   if (import.meta.env.MODE === "development") {
     return "http://localhost:5002";
   }
-  // In production, use environment variable or fall back to relative URL
-  return import.meta.env.VITE_BACKEND_URL || "/";
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  if (!backendUrl) {
+    console.warn(
+      "VITE_BACKEND_URL not set. Falling back to relative URL '/'. " +
+      "Ensure vercel.json rewrites are configured to proxy to your backend."
+    );
+  }
+  return backendUrl || "/";
 };
 
 const SOCKET_URL = getSocketURL();
