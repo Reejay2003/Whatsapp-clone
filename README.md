@@ -49,10 +49,11 @@ CLOUDINARY_SECRET=your_cloudinary_api_secret
 
 ### Installation & Running
 
-1. Install dependencies for both frontend and backend:
+1. Install dependencies and build the frontend:
 ```bash
 npm run build
 ```
+This command installs dependencies for both backend and frontend, then builds the frontend application.
 
 2. Start the backend server (from root):
 ```bash
