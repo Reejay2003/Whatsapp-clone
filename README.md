@@ -71,7 +71,9 @@ The backend will run on `http://localhost:5000` and the frontend on `http://loca
 
 ## Deployment
 
-This project can be deployed using different strategies depending on your needs:
+This project can be deployed using different strategies depending on your needs.
+
+📖 **For detailed Vercel deployment instructions, see [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)**
 
 ### Deployment on Vercel (Recommended for Frontend)
 
