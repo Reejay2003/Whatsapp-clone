@@ -69,6 +69,63 @@ npm run dev
 
 The backend will run on `http://localhost:5000` and the frontend on `http://localhost:5173`.
 
+## Deployment
+
+This project can be deployed using different strategies depending on your needs.
+
+📖 **For detailed Vercel deployment instructions, see [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)**
+
+### Deployment on Vercel (Recommended for Frontend)
+
+Vercel is ideal for deploying the frontend with automatic CI/CD. The backend should be deployed separately on a service that supports WebSocket connections (like Render, Railway, or Heroku).
+
+#### Prerequisites
+1. A Vercel account ([sign up](https://vercel.com))
+2. Backend deployed on a platform that supports WebSockets (see Render deployment below)
+
+#### Deployment Steps
+
+1. **Deploy Backend First** (see Render deployment section below)
+   - Deploy your backend to Render, Railway, or another service
+   - Note your backend URL (e.g., `https://your-backend.onrender.com`)
+
+2. **Update Backend URL** (Choose one option)
+   
+   **Option A: Update vercel.json** (Required if not using environment variables)
+   - Open `vercel.json` in the root directory
+   - Replace `YOUR-BACKEND-URL.onrender.com` with your actual backend URL
+   - Commit and push the changes
+   
+   **Option B: Use Environment Variables** (Recommended)
+   - Skip updating `vercel.json`
+   - Configure `VITE_BACKEND_URL` in Vercel (see step 4 below)
+
+3. **Deploy Frontend to Vercel**
+   - Fork or push this repository to GitHub
+   - Log in to [Vercel](https://vercel.com)
+   - Click "New Project"
+   - Import your GitHub repository
+   - Vercel will automatically detect the configuration from `vercel.json`
+   
+4. **Configure Environment Variables** (If using Option B above)
+   - In your Vercel project settings, go to "Environment Variables"
+   - Add `VITE_BACKEND_URL` with your backend URL (e.g., `https://your-backend.onrender.com`)
+   - This overrides the URL in `vercel.json` and allows the frontend to connect to your backend API
+   - Add it for Production, Preview, and Development environments
+
+5. **Deploy**
+   - Click "Deploy"
+   - Vercel will build and deploy your frontend
+   - Your app will be available at `https://your-project.vercel.app`
+
+#### How Vercel Deployment Works
+
+1. Vercel builds the frontend React application using Vite
+2. Static files are deployed to Vercel's CDN
+3. API requests to `/api/*` are proxied to your backend server
+4. Socket.io connections to `/socket.io/*` are proxied to your backend server
+5. All other requests serve the React application
+
 ## Deployment on Render
 
 This project is configured for easy deployment on Render using the included `render.yaml` file.

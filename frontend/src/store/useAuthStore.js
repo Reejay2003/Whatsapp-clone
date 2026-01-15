@@ -13,9 +13,25 @@ import {
   restorePrivateKeyFromBackup,
 } from "../lib/e2ee";
 
-// Separate URLs for API and Socket.IO
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5002/api" : "/";
-const SOCKET_URL = import.meta.env.MODE === "development" ? "http://localhost:5002" : "/";
+// Socket.io connection URL configuration
+// In production, use VITE_BACKEND_URL environment variable if set, otherwise
+// fall back to relative URL "/" which relies on deployment platform rewrites
+// (e.g., vercel.json for Vercel) to proxy to the backend server
+const getSocketURL = () => {
+  if (import.meta.env.MODE === "development") {
+    return "http://localhost:5002";
+  }
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  if (!backendUrl) {
+    console.warn(
+      "VITE_BACKEND_URL not set. Falling back to relative URL '/'. " +
+      "Ensure your deployment platform is configured to proxy requests to your backend."
+    );
+  }
+  return backendUrl || "/";
+};
+
+const SOCKET_URL = getSocketURL();
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
