@@ -53,7 +53,10 @@ export const useChatStore = create((set, get) => ({
     const out = [];
     for (const m of msgs) {
       const pkg = tryUnpackFromText(m.text);
-      if (!pkg) { out.push(m); continue; }
+      if (!pkg) {
+        out.push(m);
+        continue;
+      }
       try {
         const clear = await decryptPayload(key, pkg);
         out.push({ ...m, text: clear.text || "", image: clear.image || null });
@@ -80,41 +83,84 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  addUserByEmail: async (email) => {
+    if (!email) return;
+    try {
+      await axiosInstance.post("/message/sideBar", { email });
+      toast.success("User added successfully");
+      await get().getUsers(); // refresh user list
+    } catch (err) {
+      console.log("Error in addUserByEmail:", err);
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        "Failed to add user";
+      toast.error(errorMessage);
+    }
+  },
+
   sendMessage: async (userId, messageData) => {
     const { messages } = get();
     try {
-      // If you encrypt on the client before sending, make sure it's already packed as e2e1:<ct>:<iv>
       const res = await axiosInstance.post(`/message/send/${userId}`, messageData);
       const newMessages = [...messages, res.data];
       set({ messages: newMessages });
       return res.data;
     } catch (error) {
-      const errorMessage = error?.response?.data?.message || error?.response?.data?.error || "Failed to send message";
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Failed to send message";
       toast.error(errorMessage);
       throw error;
     }
   },
 
-  subscribeToMessages: async () => {
+  subscribeToMessages: () => {
     const { selectedUser } = get();
     if (!selectedUser) return;
+
     const socket = useAuthStore.getState().socket;
+    if (!socket) {
+      console.warn("⚠️ Socket not connected yet in subscribeToMessages()");
+      return;
+    }
+
     socket.on("newMessage", async (newMessage) => {
       if (newMessage.senderId !== selectedUser._id) return;
-      // Try decrypt incoming
       const dec = await get()._decryptMany(selectedUser._id, [newMessage]);
       set({ messages: [...get().messages, dec[0]] });
     });
   },
 
-  unsubscribeFromMessages: () => {
+  subscribeToUserUpdates: () => {
     const socket = useAuthStore.getState().socket;
+    if (!socket) {
+      console.warn("⚠️ Socket not connected yet in subscribeToUserUpdates()");
+      return;
+    }
+
+    socket.on("userAdded", (newUser) => {
+      const currentUsers = get().users;
+      if (!currentUsers.some((u) => u._id === newUser._id)) {
+        set({ users: [...currentUsers, newUser] });
+      }
+    });
+  },
+
+  unsubscribeFromAll: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) {
+      console.warn("⚠️ Socket not connected yet in unsubscribeFromAll()");
+      return;
+    }
     socket.off("newMessage");
+    socket.off("userAdded");
   },
 
   setSelectedUser: (selectedUser) => {
     set({ selectedUser });
-    // also let auth store know how to clear keys on restore
+    // allow auth store to clear conversation keys when keys are restored
     useAuthStore.setState({ onKeysRestored: get().onKeysRestored });
   },
 }));

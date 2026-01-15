@@ -14,7 +14,7 @@ const __dirname=path.resolve()
 
 // Middleware setup (fixed order and removed duplicate)
 app.use(cors({
-  origin:"http://localhost:5173",
+  origin:true,
   credentials:true
 }));
 
@@ -28,7 +28,7 @@ app.use("/api/message", messageRoutes);
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-  app.get("*", (req, res) => {
+  app.use((req, res) => {
     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
   });
 }

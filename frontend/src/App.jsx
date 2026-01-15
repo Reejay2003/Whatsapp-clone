@@ -8,11 +8,18 @@ import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import { useAuthStore } from "./store/useAuthStore";
 import { Toaster} from "react-hot-toast";
+import { useChatStore } from "./store/useChatStore";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+  const { subscribeToMessages, subscribeToUserUpdates, unsubscribeFromAll } = useChatStore();
 
-  // Run checkAuth once on mount
+  useEffect(() => {
+    subscribeToMessages();
+    subscribeToUserUpdates();
+
+    return () => unsubscribeFromAll();
+  }, []);
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);

@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // FIX: define 'name' only once
   name: {
     type: String,
     required: true,
@@ -19,6 +18,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  addedPpl: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    }
+  ],
 
   // E2EE
   e2ePublicKey: { type: Object, default: null },  // JWK (public)
